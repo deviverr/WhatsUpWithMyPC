@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:WhatsUpWithMyPC.ViewModels"
         xmlns:views="clr-namespace:WhatsUpWithMyPC.Views"
-        Title="WhatsUpWithMyPC"
-        Height="700" Width="1000"
-        MinHeight="500" MinWidth="800"
+        xmlns:models="clr-namespace:WhatsUpWithMyPC.Models"
+        Title="WhatsUpWithMyPC v2.0"
+        Height="800" Width="1100"
+        MinHeight="600" MinWidth="900"
         WindowStartupLocation="CenterScreen"
         Style="{StaticResource MainWindowStyle}"
         StateChanged="Window_StateChanged"
@@ -15,14 +16,19 @@
         <vm:MainViewModel/>
     </Window.DataContext>
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="180"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -41,48 +47,134 @@
                     <TextBlock Text="WhatsUpWithMyPC"
                                Style="{StaticResource SubheadingStyle}"
                                VerticalAlignment="Center"/>
+                    <TextBlock Text="v2.0"
+                               Style="{StaticResource CaptionStyle}"
+                               VerticalAlignment="Center"
+                               Margin="8,0,0,0"/>
                 </StackPanel>
 
-                <!-- Window Controls (minimize to tray button) -->
-                <Button HorizontalAlignment="Right"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        Padding="8,4"
-                        Command="{Binding MinimizeToTrayCommand}"
-                        ToolTip="Minimize to System Tray">
-                    <TextBlock Text="&#xE921;"
-                               FontFamily="{StaticResource IconFont}"
-                               FontSize="14"/>
-                </Button>
+                <!-- Window Controls -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource SecondaryButtonStyle}"
+                            Padding="8,4"
+                            Command="{Binding ToggleLogCommand}"
+                            ToolTip="Toggle Activity Log"
+                            Margin="0,0,8,0">
+                        <TextBlock Text="&#xE7C3;"
+                                   FontFamily="{StaticResource IconFont}"
+                                   FontSize="14"/>
+                    </Button>
+                    <Button Style="{StaticResource SecondaryButtonStyle}"
+                            Padding="8,4"
+                            Command="{Binding MinimizeToTrayCommand}"
+                            ToolTip="Minimize to System Tray">
+                        <TextBlock Text="&#xE921;"
+                                   FontFamily="{StaticResource IconFont}"
+                                   FontSize="14"/>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Border>
 
         <!-- Navigation Sidebar -->
-        <Border Grid.Row="1" Grid.Column="0"
+        <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0"
                 Background="{StaticResource SurfaceBrush}"
                 BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="0,0,1,0">
-            <StackPanel Margin="0,8">
-                <RadioButton Content="Dashboard"
-                             Style="{StaticResource NavButtonStyle}"
-                             IsChecked="{Binding IsDashboardSelected}"
-                             Command="{Binding NavigateCommand}"
-                             CommandParameter="Dashboard"/>
-                <RadioButton Content="Health Check"
-                             Style="{StaticResource NavButtonStyle}"
-                             IsChecked="{Binding IsHealthCheckSelected}"
-                             Command="{Binding NavigateCommand}"
-                             CommandParameter="HealthCheck"/>
-                <RadioButton Content="Cleanup"
-                             Style="{StaticResource NavButtonStyle}"
-                             IsChecked="{Binding IsCleanupSelected}"
-                             Command="{Binding NavigateCommand}"
-                             CommandParameter="Cleanup"/>
-                <RadioButton Content="Quick Fixes"
-                             Style="{StaticResource NavButtonStyle}"
-                             IsChecked="{Binding IsFixesSelected}"
-                             Command="{Binding NavigateCommand}"
-                             CommandParameter="Fixes"/>
-            </StackPanel>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,8">
+                    <!-- Main Section -->
+                    <TextBlock Text="MONITOR"
+                               Style="{StaticResource CaptionStyle}"
+                               Margin="16,8,16,4"
+                               FontSize="10"
+                               FontWeight="SemiBold"/>
+                    <RadioButton Style="{StaticResource NavButtonStyle}"
+                                 IsChecked="{Binding IsDashboardSelected}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Dashboard">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE9D9;" FontFamily="{StaticResource IconFont}" Margin="0,0,10,0"/>
+                            <TextBlock Text="Dashboard"/>
+                        </StackPanel>
+                    </RadioButton>
+
+                    <!-- Analysis Section -->
+                    <TextBlock Text="ANALYSIS"
+                               Style="{StaticResource CaptionStyle}"
+                               Margin="16,16,16,4"
+                               FontSize="10"
+                               FontWeight="SemiBold"/>
+                    <RadioButton Style="{StaticResource NavButtonStyle}"
+                                 IsChecked="{Binding IsHealthCheckSelected}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="HealthCheck">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE9D4;" FontFamily="{StaticResource IconFont}" Margin="0,0,10,0"/>
+                            <TextBlock Text="Health Check"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource NavButtonStyle}"
+                                 IsChecked="{Binding IsDiagnosticsSelected}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Diagnostics">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE950;" FontFamily="{StaticResource IconFont}" Margin="0,0,10,0"/>
+                            <TextBlock Text="Hardware"/>
+                        </StackPanel>
+                    </RadioButton>
+
+                    <!-- Optimize Section -->
+                    <TextBlock Text="OPTIMIZE"
+                               Style="{StaticResource CaptionStyle}"
+                               Margin="16,16,16,4"
+                               FontSize="10"
+                               FontWeight="SemiBold"/>
+                    <RadioButton Style="{StaticResource NavButtonStyle}"
+                                 IsChecked="{Binding IsCleanupSelected}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Cleanup">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE74D;" FontFamily="{StaticResource IconFont}" Margin="0,0,10,0"/>
+                            <TextBlock Text="Cleanup"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource NavButtonStyle}"
+                                 IsChecked="{Binding IsOptimizerSelected}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Optimizer">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}" Margin="0,0,10,0"/>
+                            <TextBlock Text="Optimizer"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource NavButtonStyle}"
+                                 IsChecked="{Binding IsStartupSelected}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Startup">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE7E8;" FontFamily="{StaticResource IconFont}" Margin="0,0,10,0"/>
+                            <TextBlock Text="Startup"/>
+                        </StackPanel>
+                    </RadioButton>
+
+                    <!-- Tools Section -->
+                    <TextBlock Text="TOOLS"
+                               Style="{StaticResource CaptionStyle}"
+                               Margin="16,16,16,4"
+                               FontSize="10"
+                               FontWeight="SemiBold"/>
+                    <RadioButton Style="{StaticResource NavButtonStyle}"
+                                 IsChecked="{Binding IsFixesSelected}"
+                                 Command="{Binding NavigateCommand}"
+                                 CommandParameter="Fixes">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE90F;" FontFamily="{StaticResource IconFont}" Margin="0,0,10,0"/>
+                            <TextBlock Text="Quick Fixes"/>
+                        </StackPanel>
+                    </RadioButton>
+                </StackPanel>
+            </ScrollViewer>
         </Border>
 
         <!-- Content Area -->
@@ -90,30 +182,126 @@
                         Content="{Binding CurrentView}"
                         Margin="0"/>
 
+        <!-- Activity Log Panel (Collapsible) -->
+        <Border Grid.Row="2" Grid.Column="1"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0"
+                Visibility="{Binding IsLogVisible, Converter={StaticResource BoolToVis}}"
+                MaxHeight="200">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Log Header -->
+                <Border Grid.Row="0" Background="{StaticResource SurfaceLightBrush}" Padding="12,6">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE7C3;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"/>
+                            <TextBlock Text="Activity Log"
+                                       Style="{StaticResource BodyStyle}"
+                                       FontWeight="Medium"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding LogCount, StringFormat=' ({0} entries)'}"
+                                       Style="{StaticResource CaptionStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button Content="Clear"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Padding="8,2"
+                                FontSize="12"
+                                HorizontalAlignment="Right"
+                                Command="{Binding ClearLogCommand}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Log Entries -->
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding LogEntries}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.CanContentScroll="False"
+                         x:Name="LogListBox">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="12,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding TimestampFormatted, Mode=OneWay}"
+                                           Style="{StaticResource CaptionStyle}"
+                                           FontFamily="Consolas"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Icon, Mode=OneWay}"
+                                           FontFamily="{StaticResource IconFont}"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding Message, Mode=OneWay}"
+                                           Style="{StaticResource BodyStyle}"
+                                           FontSize="12"
+                                           TextWrapping="NoWrap"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </Grid>
+        </Border>
+
         <!-- Status Bar -->
-        <Border Grid.Row="2" Grid.ColumnSpan="2"
+        <Border Grid.Row="3" Grid.ColumnSpan="2"
                 Background="{StaticResource SurfaceBrush}"
                 BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="0,1,0,0"
                 Padding="16,8">
             <Grid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,24,0">
+                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,20,0">
                         <Run Text="CPU: "/>
-                        <Run Text="{Binding CpuUsage, StringFormat={}{0:F0}%}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <Run Text="{Binding CpuUsage, StringFormat={}{0:F0}%, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}"/>
                     </TextBlock>
-                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,24,0">
+                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,20,0">
                         <Run Text="RAM: "/>
-                        <Run Text="{Binding RamUsage}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <Run Text="{Binding RamUsage, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}"/>
                     </TextBlock>
-                    <TextBlock Style="{StaticResource CaptionStyle}">
+                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,20,0">
                         <Run Text="Disk: "/>
-                        <Run Text="{Binding DiskUsage, StringFormat={}{0:F0}%}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <Run Text="{Binding DiskUsage, StringFormat={}{0:F0}%, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,20,0">
+                        <Run Text="Processes: "/>
+                        <Run Text="{Binding ProcessCount, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}"/>
                     </TextBlock>
                 </StackPanel>
                 <TextBlock HorizontalAlignment="Right"
                            Style="{StaticResource CaptionStyle}"
-                           Text="{Binding StatusMessage}"/>
+                           Text="{Binding StatusMessage, Mode=OneWay}"/>
             </Grid>
         </Border>
     </Grid>

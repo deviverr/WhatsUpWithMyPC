@@ -183,4 +183,41 @@ public static class WmiHelper
 
         return "Unknown Windows Version";
     }
+
+    public static DisplayInfo GetDisplayInfo()
+    {
+        var info = new DisplayInfo();
+
+        try
+        {
+            using var searcher = new ManagementObjectSearcher(
+                "SELECT Name, CurrentHorizontalResolution, CurrentVerticalResolution, CurrentRefreshRate, CurrentBitsPerPixel FROM Win32_VideoController");
+            foreach (var obj in searcher.Get())
+            {
+                info.Name = obj["Name"]?.ToString() ?? "Unknown Display";
+                info.Width = Convert.ToInt32(obj["CurrentHorizontalResolution"] ?? 0);
+                info.Height = Convert.ToInt32(obj["CurrentVerticalResolution"] ?? 0);
+                info.RefreshRate = Convert.ToInt32(obj["CurrentRefreshRate"] ?? 0);
+                info.BitsPerPixel = Convert.ToInt32(obj["CurrentBitsPerPixel"] ?? 0);
+                break;
+            }
+
+            // Get DPI scaling
+            try
+            {
+                using var graphics = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
+                info.ScalingPercent = Math.Round(graphics.DpiX / 96.0 * 100);
+            }
+            catch
+            {
+                info.ScalingPercent = 100;
+            }
+        }
+        catch
+        {
+            info.Name = "Unknown Display";
+        }
+
+        return info;
+    }
 }

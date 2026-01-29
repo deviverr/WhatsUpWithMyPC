@@ -1,4 +1,5 @@
 using WhatsUpWithMyPC.Models;
+using WhatsUpWithMyPC.Services;
 
 namespace WhatsUpWithMyPC.Services;
 
@@ -10,25 +11,42 @@ public class CleanupService
     public async Task<List<CleanupItem>> ScanForCleanupAsync(CancellationToken cancellationToken = default)
     {
         var items = new List<CleanupItem>();
+        LogService.Instance.Info("Starting cleanup scan...", "Cleanup");
 
         await Task.Run(() =>
         {
             // Windows Temp folder
+            LogService.Instance.Info("Scanning Windows Temp folder...", "Cleanup");
             var windowsTemp = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Temp");
-            items.Add(ScanFolder("Windows Temp", windowsTemp, CleanupCategory.TempFiles, true));
+            var winTempItem = ScanFolder("Windows Temp", windowsTemp, CleanupCategory.TempFiles, true);
+            items.Add(winTempItem);
+            if (winTempItem.SizeBytes > 0)
+                LogService.Instance.Success($"Found {winTempItem.SizeFormatted} in Windows Temp", "Cleanup");
 
             // User Temp folder
+            LogService.Instance.Info("Scanning User Temp folder...", "Cleanup");
             var userTemp = Path.GetTempPath();
-            items.Add(ScanFolder("User Temp", userTemp, CleanupCategory.TempFiles, false));
+            var userTempItem = ScanFolder("User Temp", userTemp, CleanupCategory.TempFiles, false);
+            items.Add(userTempItem);
+            if (userTempItem.SizeBytes > 0)
+                LogService.Instance.Success($"Found {userTempItem.SizeFormatted} in User Temp", "Cleanup");
 
             // Browser caches
-            items.AddRange(ScanBrowserCaches());
+            LogService.Instance.Info("Scanning browser caches...", "Cleanup");
+            var browserItems = ScanBrowserCaches();
+            items.AddRange(browserItems);
+            foreach (var browser in browserItems.Where(b => b.SizeBytes > 0))
+                LogService.Instance.Success($"Found {browser.SizeFormatted} in {browser.Name}", "Cleanup");
 
             // Windows Update cache
             var updateCache = @"C:\Windows\SoftwareDistribution\Download";
             if (Directory.Exists(updateCache))
             {
-                items.Add(ScanFolder("Windows Update Cache", updateCache, CleanupCategory.UpdateCache, true));
+                LogService.Instance.Info("Scanning Windows Update cache...", "Cleanup");
+                var updateItem = ScanFolder("Windows Update Cache", updateCache, CleanupCategory.UpdateCache, true);
+                items.Add(updateItem);
+                if (updateItem.SizeBytes > 0)
+                    LogService.Instance.Success($"Found {updateItem.SizeFormatted} in Update Cache", "Cleanup");
             }
 
             // Thumbnail cache
@@ -37,22 +55,45 @@ public class CleanupService
                 @"Microsoft\Windows\Explorer");
             if (Directory.Exists(thumbCache))
             {
-                items.Add(ScanFolder("Thumbnail Cache", thumbCache, CleanupCategory.Thumbnails, false, "thumbcache*.db"));
+                LogService.Instance.Info("Scanning thumbnail cache...", "Cleanup");
+                var thumbItem = ScanFolder("Thumbnail Cache", thumbCache, CleanupCategory.Thumbnails, false, "thumbcache*.db");
+                items.Add(thumbItem);
+                if (thumbItem.SizeBytes > 0)
+                    LogService.Instance.Success($"Found {thumbItem.SizeFormatted} in Thumbnails", "Cleanup");
             }
 
             // Recycle Bin
-            items.Add(GetRecycleBinInfo());
+            LogService.Instance.Info("Scanning Recycle Bin...", "Cleanup");
+            var recycleItem = GetRecycleBinInfo();
+            items.Add(recycleItem);
+            if (recycleItem.SizeBytes > 0)
+                LogService.Instance.Success($"Found {recycleItem.SizeFormatted} in Recycle Bin", "Cleanup");
 
             // Windows log files
             var logsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Logs");
             if (Directory.Exists(logsFolder))
             {
-                items.Add(ScanFolder("Windows Logs", logsFolder, CleanupCategory.LogFiles, true));
+                LogService.Instance.Info("Scanning Windows logs...", "Cleanup");
+                var logsItem = ScanFolder("Windows Logs", logsFolder, CleanupCategory.LogFiles, true);
+                items.Add(logsItem);
+                if (logsItem.SizeBytes > 0)
+                    LogService.Instance.Success($"Found {logsItem.SizeFormatted} in Windows Logs", "Cleanup");
             }
 
         }, cancellationToken);
 
-        return items.Where(i => i.SizeBytes > 0).ToList();
+        var cleanableItems = items.Where(i => i.SizeBytes > 0).ToList();
+        var totalSize = cleanableItems.Sum(i => i.SizeBytes);
+        LogService.Instance.Success($"Scan complete: {cleanableItems.Count} locations, {FormatSize(totalSize)} recoverable", "Cleanup");
+        return cleanableItems;
+    }
+
+    private static string FormatSize(long bytes)
+    {
+        if (bytes >= 1024 * 1024 * 1024) return $"{bytes / 1024.0 / 1024.0 / 1024.0:F1} GB";
+        if (bytes >= 1024 * 1024) return $"{bytes / 1024.0 / 1024.0:F1} MB";
+        if (bytes >= 1024) return $"{bytes / 1024.0:F1} KB";
+        return $"{bytes} B";
     }
 
     private CleanupItem ScanFolder(string name, string path, CleanupCategory category, bool requiresAdmin, string pattern = "*")
@@ -195,13 +236,20 @@ public class CleanupService
         var totalItems = selectedItems.Count;
         var currentItem = 0;
 
+        LogService.Instance.Info($"Starting cleanup of {totalItems} locations...", "Cleanup");
+
         foreach (var item in selectedItems)
         {
-            if (cancellationToken.IsCancellationRequested) break;
+            if (cancellationToken.IsCancellationRequested)
+            {
+                LogService.Instance.Warning("Cleanup cancelled by user", "Cleanup");
+                break;
+            }
 
             currentItem++;
             StatusChanged?.Invoke(this, $"Cleaning {item.Name}...");
             ProgressChanged?.Invoke(this, (int)((double)currentItem / totalItems * 100));
+            LogService.Instance.Info($"Cleaning {item.Name}...", "Cleanup");
 
             try
             {
@@ -209,6 +257,7 @@ public class CleanupService
                 {
                     await CleanRecycleBinAsync();
                     result.TotalBytesFreed += item.SizeBytes;
+                    LogService.Instance.Success($"Emptied Recycle Bin ({item.SizeFormatted})", "Cleanup");
                 }
                 else
                 {
@@ -216,16 +265,19 @@ public class CleanupService
                     result.TotalBytesFreed += cleaned.bytes;
                     result.FilesDeleted += cleaned.files;
                     result.FoldersDeleted += cleaned.folders;
+                    LogService.Instance.Success($"Cleaned {item.Name}: {cleaned.files} files, {FormatSize(cleaned.bytes)}", "Cleanup");
                 }
             }
             catch (Exception ex)
             {
                 result.Errors.Add($"{item.Name}: {ex.Message}");
+                LogService.Instance.Error($"Failed to clean {item.Name}: {ex.Message}", "Cleanup");
             }
         }
 
         StatusChanged?.Invoke(this, "Cleanup complete");
         ProgressChanged?.Invoke(this, 100);
+        LogService.Instance.Success($"Cleanup complete: {result.FilesDeleted} files deleted, {FormatSize(result.TotalBytesFreed)} freed", "Cleanup");
 
         return result;
     }

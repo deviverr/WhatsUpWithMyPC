@@ -1,0 +1,177 @@
+<UserControl x:Class="WhatsUpWithMyPC.Views.OptimizerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WhatsUpWithMyPC.ViewModels"
+             Background="{StaticResource BackgroundBrush}">
+
+    <UserControl.DataContext>
+        <vm:OptimizerViewModel/>
+    </UserControl.DataContext>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel>
+            <!-- Header -->
+            <TextBlock Text="Performance Optimizer"
+                       Style="{StaticResource HeadingStyle}"
+                       Margin="0,0,0,8"/>
+            <TextBlock Text="Optimize Windows settings for better performance"
+                       Style="{StaticResource CaptionStyle}"
+                       Margin="0,0,0,24"/>
+
+            <!-- Quick Presets -->
+            <TextBlock Text="QUICK PRESETS"
+                       Style="{StaticResource CaptionStyle}"
+                       FontSize="11"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,12"/>
+
+            <WrapPanel Margin="0,0,0,24">
+                <Button Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding ApplyPresetCommand}"
+                        CommandParameter="MaxPerformance"
+                        Margin="0,0,12,8"
+                        Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}"
+                                   FontSize="24" Foreground="{StaticResource ErrorBrush}"
+                                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBlock Text="Max Performance" FontWeight="Medium"/>
+                        <TextBlock Text="Disable all visual effects" Style="{StaticResource CaptionStyle}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding ApplyPresetCommand}"
+                        CommandParameter="Balanced"
+                        Margin="0,0,12,8"
+                        Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="&#xEC49;" FontFamily="{StaticResource IconFont}"
+                                   FontSize="24" Foreground="{StaticResource AccentBrush}"
+                                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBlock Text="Balanced" FontWeight="Medium"/>
+                        <TextBlock Text="Best of both worlds" Style="{StaticResource CaptionStyle}"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding ApplyPresetCommand}"
+                        CommandParameter="Gaming"
+                        Margin="0,0,12,8"
+                        Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="&#xE7FC;" FontFamily="{StaticResource IconFont}"
+                                   FontSize="24" Foreground="{StaticResource SuccessBrush}"
+                                   HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBlock Text="Gaming Mode" FontWeight="Medium"/>
+                        <TextBlock Text="Optimized for games" Style="{StaticResource CaptionStyle}"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+
+            <!-- Visual Effects -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="&#xE771;" FontFamily="{StaticResource IconFont}"
+                                   FontSize="20" Foreground="{StaticResource AccentBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Visual Effects" Style="{StaticResource SubheadingStyle}"/>
+                    </StackPanel>
+
+                    <CheckBox Content="Window animations"
+                              IsChecked="{Binding WindowAnimations}"
+                              Style="{StaticResource ModernCheckBoxStyle}"
+                              Margin="0,0,0,8"/>
+                    <CheckBox Content="Taskbar animations"
+                              IsChecked="{Binding TaskbarAnimations}"
+                              Style="{StaticResource ModernCheckBoxStyle}"
+                              Margin="0,0,0,8"/>
+                    <CheckBox Content="Smooth scrolling"
+                              IsChecked="{Binding SmoothScrolling}"
+                              Style="{StaticResource ModernCheckBoxStyle}"
+                              Margin="0,0,0,8"/>
+                    <CheckBox Content="Transparency effects"
+                              IsChecked="{Binding TransparencyEffects}"
+                              Style="{StaticResource ModernCheckBoxStyle}"
+                              Margin="0,0,0,8"/>
+                    <CheckBox Content="Show shadows under windows"
+                              IsChecked="{Binding WindowShadows}"
+                              Style="{StaticResource ModernCheckBoxStyle}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Power Settings -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}"
+                                   FontSize="20" Foreground="{StaticResource AccentBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Power Settings" Style="{StaticResource SubheadingStyle}"/>
+                    </StackPanel>
+
+                    <TextBlock Text="Current Power Plan:" Style="{StaticResource CaptionStyle}" Margin="0,0,0,8"/>
+                    <ComboBox ItemsSource="{Binding PowerPlans}"
+                              SelectedItem="{Binding SelectedPowerPlan}"
+                              Margin="0,0,0,12"
+                              Padding="12,8"/>
+
+                    <Button Content="Apply Power Plan"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding ApplyPowerPlanCommand}"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Memory Optimization -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="&#xE950;" FontFamily="{StaticResource IconFont}"
+                                   FontSize="20" Foreground="{StaticResource AccentBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Memory Optimization" Style="{StaticResource SubheadingStyle}"/>
+                    </StackPanel>
+
+                    <TextBlock Style="{StaticResource BodyStyle}" Margin="0,0,0,12">
+                        Clear cached memory to free up RAM for active applications.
+                    </TextBlock>
+
+                    <Button Content="Clear Memory Cache"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Command="{Binding ClearMemoryCommand}"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Gaming Optimizations -->
+            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="&#xE7FC;" FontFamily="{StaticResource IconFont}"
+                                   FontSize="20" Foreground="{StaticResource AccentBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBlock Text="Gaming Optimizations" Style="{StaticResource SubheadingStyle}"/>
+                    </StackPanel>
+
+                    <CheckBox Content="Enable Game Mode"
+                              IsChecked="{Binding GameModeEnabled}"
+                              Style="{StaticResource ModernCheckBoxStyle}"
+                              Margin="0,0,0,8"/>
+                    <CheckBox Content="Disable Xbox Game Bar"
+                              IsChecked="{Binding DisableGameBar}"
+                              Style="{StaticResource ModernCheckBoxStyle}"
+                              Margin="0,0,0,8"/>
+                    <CheckBox Content="Disable background recording"
+                              IsChecked="{Binding DisableBackgroundRecording}"
+                              Style="{StaticResource ModernCheckBoxStyle}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Status -->
+            <TextBlock Text="{Binding StatusMessage, Mode=OneWay}"
+                       Style="{StaticResource CaptionStyle}"
+                       Foreground="{StaticResource SuccessBrush}"
+                       Margin="0,8,0,0"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

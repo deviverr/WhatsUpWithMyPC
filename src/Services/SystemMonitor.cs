@@ -78,6 +78,15 @@ public class SystemMonitor : IDisposable
                 // Uptime
                 stats.Uptime = WmiHelper.GetSystemUptime();
 
+                // Display
+                stats.Display = WmiHelper.GetDisplayInfo();
+
+                // Process/Thread/Handle counts
+                var processes = Process.GetProcesses();
+                stats.ProcessCount = processes.Length;
+                stats.ThreadCount = processes.Sum(p => { try { return p.Threads.Count; } catch { return 0; } });
+                stats.HandleCount = processes.Sum(p => { try { return p.HandleCount; } catch { return 0; } });
+
                 CurrentStats = stats;
                 StatsUpdated?.Invoke(this, stats);
             }

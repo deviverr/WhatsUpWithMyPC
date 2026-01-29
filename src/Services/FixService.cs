@@ -14,12 +14,14 @@ public class FixService
     public async Task<bool> FixShutdownIssuesAsync()
     {
         StatusChanged?.Invoke(this, "Attempting to fix shutdown issues...");
+        LogService.Instance.Info("Attempting to fix shutdown issues...", "Fix");
 
         var success = true;
 
         // Kill hung processes
         try
         {
+            LogService.Instance.Info("Killing hung processes...", "Fix");
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -32,23 +34,29 @@ public class FixService
             };
             process.Start();
             await process.WaitForExitAsync();
+            LogService.Instance.Success("Hung processes terminated", "Fix");
         }
-        catch
+        catch (Exception ex)
         {
             success = false;
+            LogService.Instance.Error($"Failed to kill hung processes: {ex.Message}", "Fix");
         }
 
         // Reset power configuration
         try
         {
+            LogService.Instance.Info("Resetting power configuration...", "Fix");
             await RunCommandAsync("powercfg", "/restoredefaultschemes");
+            LogService.Instance.Success("Power configuration reset", "Fix");
         }
-        catch
+        catch (Exception ex)
         {
             success = false;
+            LogService.Instance.Error($"Failed to reset power config: {ex.Message}", "Fix");
         }
 
         StatusChanged?.Invoke(this, success ? "Shutdown issues fixed" : "Some fixes failed");
+        LogService.Instance.Info(success ? "Shutdown fix complete" : "Some shutdown fixes failed", "Fix");
         return success;
     }
 
@@ -186,19 +194,28 @@ public class FixService
     public async Task<bool> ClearMemoryAsync()
     {
         StatusChanged?.Invoke(this, "Clearing memory...");
+        LogService.Instance.Info("Clearing memory caches...", "Fix");
 
         try
         {
             // Clear working set
             ProcessHelper.ClearStandbyMemory();
+            LogService.Instance.Success("Cleared standby memory", "Fix");
+
+            // Force garbage collection
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            LogService.Instance.Info("Garbage collection complete", "Fix");
 
             // Run memory diagnostic tool suggestion
             StatusChanged?.Invoke(this, "Memory cleared. For deeper analysis, run Windows Memory Diagnostic.");
+            LogService.Instance.Success("Memory clearing complete", "Fix");
             return true;
         }
-        catch
+        catch (Exception ex)
         {
             StatusChanged?.Invoke(this, "Failed to clear memory");
+            LogService.Instance.Error($"Failed to clear memory: {ex.Message}", "Fix");
             return false;
         }
     }
@@ -278,24 +295,33 @@ public class FixService
     public async Task<bool> ResetNetworkStackAsync()
     {
         StatusChanged?.Invoke(this, "Resetting network stack...");
+        LogService.Instance.Info("Starting network stack reset...", "Fix");
 
         try
         {
             // Flush DNS
+            LogService.Instance.Info("Flushing DNS cache...", "Fix");
             await RunCommandAsync("ipconfig", "/flushdns");
+            LogService.Instance.Success("DNS cache flushed", "Fix");
 
             // Reset Winsock
+            LogService.Instance.Info("Resetting Winsock catalog...", "Fix");
             await RunCommandAsync("netsh", "winsock reset");
+            LogService.Instance.Success("Winsock reset", "Fix");
 
             // Reset IP stack
+            LogService.Instance.Info("Resetting TCP/IP stack...", "Fix");
             await RunCommandAsync("netsh", "int ip reset");
+            LogService.Instance.Success("IP stack reset", "Fix");
 
             StatusChanged?.Invoke(this, "Network stack reset. A restart may be required.");
+            LogService.Instance.Warning("Network reset complete - restart recommended", "Fix");
             return true;
         }
-        catch
+        catch (Exception ex)
         {
             StatusChanged?.Invoke(this, "Failed to reset network stack");
+            LogService.Instance.Error($"Network reset failed: {ex.Message}", "Fix");
             return false;
         }
     }

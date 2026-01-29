@@ -77,6 +77,19 @@ public class NetworkInfo
     }
 }
 
+public class DisplayInfo
+{
+    public string Name { get; set; } = string.Empty;
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public int RefreshRate { get; set; }
+    public int BitsPerPixel { get; set; }
+    public double ScalingPercent { get; set; } = 100;
+
+    public string Resolution => $"{Width}x{Height}";
+    public string DisplayString => $"{Width}x{Height} @ {RefreshRate}Hz";
+}
+
 public class SystemStats
 {
     public CpuInfo Cpu { get; set; } = new();
@@ -85,6 +98,10 @@ public class SystemStats
     public GpuInfo Gpu { get; set; } = new();
     public BatteryInfo Battery { get; set; } = new();
     public NetworkInfo Network { get; set; } = new();
+    public DisplayInfo Display { get; set; } = new();
     public TimeSpan Uptime { get; set; }
     public DateTime LastUpdated { get; set; }
+    public int ProcessCount { get; set; }
+    public int ThreadCount { get; set; }
+    public int HandleCount { get; set; }
 }

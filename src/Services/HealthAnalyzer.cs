@@ -53,6 +53,24 @@ public class HealthAnalyzer
         report.ScanCompleted = DateTime.Now;
         ReportProgress("Scan complete", totalSteps, totalSteps);
 
+        var criticalCount = report.Issues.Count(i => i.Severity == IssueSeverity.Critical);
+        var errorCount = report.Issues.Count(i => i.Severity == IssueSeverity.Error);
+        var warningCount = report.Issues.Count(i => i.Severity == IssueSeverity.Warning);
+        var infoCount = report.Issues.Count(i => i.Severity == IssueSeverity.Info);
+
+        if (report.Issues.Count == 0)
+        {
+            LogService.Instance.Success("Health scan complete: No issues found!", "Health");
+        }
+        else
+        {
+            LogService.Instance.Success($"Health scan complete: {report.Issues.Count} issue(s) found", "Health");
+            if (criticalCount > 0) LogService.Instance.Error($"  {criticalCount} critical", "Health");
+            if (errorCount > 0) LogService.Instance.Error($"  {errorCount} error(s)", "Health");
+            if (warningCount > 0) LogService.Instance.Warning($"  {warningCount} warning(s)", "Health");
+            if (infoCount > 0) LogService.Instance.Info($"  {infoCount} info", "Health");
+        }
+
         return report;
     }
 
@@ -60,18 +78,22 @@ public class HealthAnalyzer
     {
         StatusChanged?.Invoke(this, status);
         ProgressChanged?.Invoke(this, (int)((double)step / totalSteps * 100));
+        LogService.Instance.Info(status, "Health");
     }
 
     private void CheckDiskHealth(HealthReport report)
     {
         var disks = WmiHelper.GetDiskInfo();
+        LogService.Instance.Info($"Found {disks.Count} disk(s) to check", "Health");
 
         foreach (var disk in disks)
         {
+            LogService.Instance.Info($"Checking {disk.DriveLetter}: {disk.UsagePercent:F0}% used ({disk.FreeGB:F1} GB free)", "Health");
+
             // Check for low disk space
             if (disk.UsagePercent > 90)
             {
-                report.Issues.Add(new HealthIssue
+                var issue = new HealthIssue
                 {
                     Title = $"Low disk space on {disk.DriveLetter}",
                     Description = $"Drive {disk.DriveLetter} is {disk.UsagePercent:F0}% full. Only {disk.FreeGB:F1} GB remaining.",
@@ -79,11 +101,13 @@ public class HealthAnalyzer
                     Category = IssueCategory.Disk,
                     CanAutoFix = true,
                     FixAction = "RunCleanup"
-                });
+                };
+                report.Issues.Add(issue);
+                LogService.Instance.Warning($"ISSUE: {issue.Title}", "Health");
             }
             else if (disk.UsagePercent > 80)
             {
-                report.Issues.Add(new HealthIssue
+                var issue = new HealthIssue
                 {
                     Title = $"Disk space getting low on {disk.DriveLetter}",
                     Description = $"Drive {disk.DriveLetter} is {disk.UsagePercent:F0}% full. Consider cleaning up.",
@@ -91,7 +115,13 @@ public class HealthAnalyzer
                     Category = IssueCategory.Disk,
                     CanAutoFix = true,
                     FixAction = "RunCleanup"
-                });
+                };
+                report.Issues.Add(issue);
+                LogService.Instance.Info($"Note: {issue.Title}", "Health");
+            }
+            else
+            {
+                LogService.Instance.Success($"{disk.DriveLetter} disk space OK", "Health");
             }
         }
     }
@@ -99,10 +129,11 @@ public class HealthAnalyzer
     private void CheckMemoryUsage(HealthReport report)
     {
         var memory = WmiHelper.GetMemoryInfo();
+        LogService.Instance.Info($"RAM: {memory.UsedGB:F1} / {memory.TotalGB:F1} GB ({memory.UsagePercent:F0}% used)", "Health");
 
         if (memory.UsagePercent > 90)
         {
-            report.Issues.Add(new HealthIssue
+            var issue = new HealthIssue
             {
                 Title = "Very high memory usage",
                 Description = $"RAM is {memory.UsagePercent:F0}% utilized ({memory.UsedGB:F1} / {memory.TotalGB:F1} GB). System may be slow.",
@@ -110,11 +141,13 @@ public class HealthAnalyzer
                 Category = IssueCategory.Memory,
                 CanAutoFix = true,
                 FixAction = "ClearMemory"
-            });
+            };
+            report.Issues.Add(issue);
+            LogService.Instance.Error($"ISSUE: {issue.Title}", "Health");
         }
         else if (memory.UsagePercent > 80)
         {
-            report.Issues.Add(new HealthIssue
+            var issue = new HealthIssue
             {
                 Title = "High memory usage",
                 Description = $"RAM is {memory.UsagePercent:F0}% utilized. Consider closing some applications.",
@@ -122,15 +155,23 @@ public class HealthAnalyzer
                 Category = IssueCategory.Memory,
                 CanAutoFix = true,
                 FixAction = "ClearMemory"
-            });
+            };
+            report.Issues.Add(issue);
+            LogService.Instance.Warning($"ISSUE: {issue.Title}", "Health");
+        }
+        else
+        {
+            LogService.Instance.Success("Memory usage OK", "Health");
         }
 
         // Check for memory hogs
         var topProcesses = ProcessHelper.GetTopMemoryProcesses(5);
         var threshold = memory.TotalBytes * 0.2; // 20% of total RAM
+        LogService.Instance.Info("Checking top memory consumers...", "Health");
 
         foreach (var proc in topProcesses)
         {
+            LogService.Instance.Info($"  {proc.Name}: {proc.MemoryFormatted}", "Health");
             if ((ulong)proc.MemoryBytes > threshold)
             {
                 report.Issues.Add(new HealthIssue

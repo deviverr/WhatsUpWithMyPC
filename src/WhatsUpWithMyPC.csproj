@@ -9,7 +9,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>WhatsUpWithMyPC</AssemblyName>
     <RootNamespace>WhatsUpWithMyPC</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Authors>WhatsUpWithMyPC</Authors>
     <Description>Lightweight Windows PC health analyzer, cleaner, and repair utility</Description>
 
@@ -26,6 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
     <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
