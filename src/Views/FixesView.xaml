@@ -1,0 +1,266 @@
+<UserControl x:Class="WhatsUpWithMyPC.Views.FixesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WhatsUpWithMyPC.ViewModels"
+             Background="{StaticResource BackgroundBrush}">
+
+    <UserControl.DataContext>
+        <vm:FixesViewModel/>
+    </UserControl.DataContext>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel>
+            <!-- Header -->
+            <TextBlock Text="Quick Fixes"
+                       Style="{StaticResource HeadingStyle}"
+                       Margin="0,0,0,8"/>
+            <TextBlock Text="One-click solutions for common PC problems"
+                       Style="{StaticResource CaptionStyle}"
+                       Margin="0,0,0,24"/>
+
+            <!-- Status Message -->
+            <Border Style="{StaticResource CardStyle}"
+                    Margin="0,0,0,24"
+                    Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="{Binding StatusMessage}"
+                           Style="{StaticResource BodyStyle}"/>
+            </Border>
+
+            <!-- Fix Categories -->
+            <UniformGrid Columns="2" Rows="4">
+
+                <!-- PC Won't Shut Down -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,12,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="&#xE7E8;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       FontSize="24"
+                                       Foreground="{StaticResource ErrorBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Text="PC Won't Shut Down"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Kills hanging processes and resets power configuration to fix shutdown issues."
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Fix Shutdown Issues"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding FixShutdownCommand}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Fast Battery Drain -->
+                <Border Style="{StaticResource CardStyle}" Margin="12,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="&#xE83F;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       FontSize="24"
+                                       Foreground="{StaticResource WarningBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Text="Fast Battery Drain"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Optimizes power settings and identifies power-hungry applications."
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Optimize Battery"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding OptimizeBatteryCommand}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Random Restarts -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,12,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="&#xE777;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       FontSize="24"
+                                       Foreground="{StaticResource ErrorBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Text="Random Restarts"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Analyzes crash logs and disables automatic restart on BSOD to help diagnose issues."
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Diagnose Restarts"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding DiagnoseRestartsCommand}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- RAM Full -->
+                <Border Style="{StaticResource CardStyle}" Margin="12,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="&#xE964;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       FontSize="24"
+                                       Foreground="{StaticResource WarningBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Text="RAM Full"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Clears standby memory and shows processes using the most RAM."
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Clear Memory"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding ClearMemoryCommand}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Disk Full -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,12,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="&#xEDA2;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       FontSize="24"
+                                       Foreground="{StaticResource ErrorBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Text="Disk Full"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Finds large files and runs disk cleanup to free up space."
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Find Large Files"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding FindLargeFilesCommand}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Slow Startup -->
+                <Border Style="{StaticResource CardStyle}" Margin="12,0,0,12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="&#xE916;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       FontSize="24"
+                                       Foreground="{StaticResource WarningBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Text="Slow Startup"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Lists startup programs that may slow down boot time."
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Manage Startup"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding ManageStartupCommand}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- High CPU Usage -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="&#xE950;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       FontSize="24"
+                                       Foreground="{StaticResource ErrorBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Text="High CPU Usage"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Identifies processes using the most CPU and lets you end them."
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Find CPU Hogs"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding FindCpuHogsCommand}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Network Issues -->
+                <Border Style="{StaticResource CardStyle}" Margin="12,0,0,0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <TextBlock Text="&#xE839;"
+                                       FontFamily="{StaticResource IconFont}"
+                                       FontSize="24"
+                                       Foreground="{StaticResource WarningBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Text="Network Issues"
+                                       Style="{StaticResource SubheadingStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Resets network stack and flushes DNS cache to fix connectivity problems."
+                                   Style="{StaticResource CaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12"/>
+                        <Button Content="Reset Network"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding ResetNetworkCommand}"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Details Panel (for showing results) -->
+            <Border Style="{StaticResource CardStyle}"
+                    Margin="0,24,0,0"
+                    Visibility="{Binding ShowDetails, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="{Binding DetailsTitle}"
+                               Style="{StaticResource SubheadingStyle}"
+                               Margin="0,0,0,12"/>
+
+                    <ItemsControl ItemsSource="{Binding DetailItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource SurfaceLightBrush}"
+                                        CornerRadius="4"
+                                        Padding="12,8"
+                                        Margin="0,0,0,4">
+                                    <TextBlock Text="{Binding}"
+                                               Style="{StaticResource BodyStyle}"
+                                               TextWrapping="Wrap"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button Content="Close"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding CloseDetailsCommand}"
+                            HorizontalAlignment="Left"
+                            Margin="0,12,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

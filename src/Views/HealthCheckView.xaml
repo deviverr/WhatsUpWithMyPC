@@ -1,0 +1,201 @@
+<UserControl x:Class="WhatsUpWithMyPC.Views.HealthCheckView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WhatsUpWithMyPC.ViewModels"
+             Background="{StaticResource BackgroundBrush}">
+
+    <UserControl.DataContext>
+        <vm:HealthCheckViewModel/>
+    </UserControl.DataContext>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="Health Check"
+                       Style="{StaticResource HeadingStyle}"/>
+            <TextBlock Text="Scan your system for potential issues"
+                       Style="{StaticResource CaptionStyle}"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Scan Progress -->
+        <Border Grid.Row="1"
+                Style="{StaticResource CardStyle}"
+                Margin="0,0,0,24"
+                Visibility="{Binding IsScanning, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock Text="{Binding ScanStatus}"
+                           Style="{StaticResource BodyStyle}"
+                           Margin="0,0,0,12"/>
+                <ProgressBar Value="{Binding ScanProgress}"
+                             Maximum="100"
+                             Style="{StaticResource ModernProgressBarStyle}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Results Summary -->
+        <Border Grid.Row="1"
+                Style="{StaticResource CardStyle}"
+                Margin="0,0,0,24"
+                Visibility="{Binding HasResults, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="{Binding Report.OverallStatus}"
+                               Style="{StaticResource SubheadingStyle}"/>
+                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,4,0,0">
+                        <Run Text="Scan completed in "/>
+                        <Run Text="{Binding ScanDuration, Mode=OneWay}"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="#E81123" CornerRadius="4"
+                        Padding="12,8" Margin="8,0"
+                        Visibility="{Binding HasCritical, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Foreground="White">
+                        <Run Text="{Binding Report.CriticalCount, Mode=OneWay}"/>
+                        <Run Text=" Critical"/>
+                    </TextBlock>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Background="#E81123" CornerRadius="4"
+                        Padding="12,8" Margin="8,0"
+                        Visibility="{Binding HasErrors, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Foreground="White">
+                        <Run Text="{Binding Report.ErrorCount, Mode=OneWay}"/>
+                        <Run Text=" Errors"/>
+                    </TextBlock>
+                </Border>
+
+                <Border Grid.Column="3"
+                        Background="#FF8C00" CornerRadius="4"
+                        Padding="12,8" Margin="8,0"
+                        Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Foreground="White">
+                        <Run Text="{Binding Report.WarningCount, Mode=OneWay}"/>
+                        <Run Text=" Warnings"/>
+                    </TextBlock>
+                </Border>
+
+                <Border Grid.Column="4"
+                        Background="#0078D4" CornerRadius="4"
+                        Padding="12,8"
+                        Visibility="{Binding HasInfo, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Foreground="White">
+                        <Run Text="{Binding Report.InfoCount, Mode=OneWay}"/>
+                        <Run Text=" Info"/>
+                    </TextBlock>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Issues List -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Issues}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Severity Icon -->
+                                <Border Grid.Column="0"
+                                        Width="40" Height="40"
+                                        CornerRadius="20"
+                                        Margin="0,0,16,0">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{Binding SeverityColor}"/>
+                                    </Border.Background>
+                                    <TextBlock Text="{Binding SeverityIcon}"
+                                               FontFamily="{StaticResource IconFont}"
+                                               FontSize="18"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+
+                                <!-- Issue Details -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}"
+                                               Style="{StaticResource BodyStyle}"
+                                               FontWeight="Medium"/>
+                                    <TextBlock Text="{Binding Description}"
+                                               Style="{StaticResource CaptionStyle}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+
+                                <!-- Fix Button -->
+                                <Button Grid.Column="2"
+                                        Content="Fix"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Visibility="{Binding CanAutoFix, Converter={StaticResource BoolToVisibilityConverter}}"
+                                        Command="{Binding DataContext.FixIssueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        VerticalAlignment="Center"
+                                        Padding="16,6"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- No Issues Message -->
+        <Border Grid.Row="2"
+                Visibility="{Binding NoIssuesFound, Converter={StaticResource BoolToVisibilityConverter}}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="&#xE73E;"
+                           FontFamily="{StaticResource IconFont}"
+                           FontSize="64"
+                           Foreground="{StaticResource SuccessBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="No issues found!"
+                           Style="{StaticResource SubheadingStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,16,0,0"/>
+                <TextBlock Text="Your system appears to be healthy."
+                           Style="{StaticResource CaptionStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    Margin="0,24,0,0">
+            <Button Content="Run Full Scan"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding RunScanCommand}"
+                    IsEnabled="{Binding CanStartScan}"/>
+            <Button Content="Fix All"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding FixAllCommand}"
+                    IsEnabled="{Binding HasFixableIssues}"
+                    Margin="12,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

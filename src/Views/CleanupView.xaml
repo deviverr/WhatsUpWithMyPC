@@ -1,0 +1,210 @@
+<UserControl x:Class="WhatsUpWithMyPC.Views.CleanupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WhatsUpWithMyPC.ViewModels"
+             Background="{StaticResource BackgroundBrush}">
+
+    <UserControl.DataContext>
+        <vm:CleanupViewModel/>
+    </UserControl.DataContext>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="Disk Cleanup"
+                       Style="{StaticResource HeadingStyle}"/>
+            <TextBlock Text="Free up disk space by removing temporary and cached files"
+                       Style="{StaticResource CaptionStyle}"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Progress -->
+        <Border Grid.Row="1"
+                Style="{StaticResource CardStyle}"
+                Margin="0,0,0,24"
+                Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock Text="{Binding StatusMessage}"
+                           Style="{StaticResource BodyStyle}"
+                           Margin="0,0,0,12"/>
+                <ProgressBar Value="{Binding Progress}"
+                             Maximum="100"
+                             Style="{StaticResource ModernProgressBarStyle}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Summary Card -->
+        <Border Grid.Row="1"
+                Style="{StaticResource CardStyle}"
+                Margin="0,0,0,24"
+                Visibility="{Binding HasItems, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SubheadingStyle}">
+                        <Run Text="Total selected: "/>
+                        <Run Text="{Binding TotalSelectedSize, Mode=OneWay}" Foreground="{StaticResource AccentBrush}"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,4,0,0">
+                        <Run Text="{Binding SelectedCount, Mode=OneWay}"/>
+                        <Run Text=" items selected"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Select All"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding SelectAllCommand}"
+                            Padding="12,6"/>
+                    <Button Content="Deselect All"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Command="{Binding DeselectAllCommand}"
+                            Padding="12,6"
+                            Margin="8,0,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Cleanup Items -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding CleanupItems}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Checkbox -->
+                                <CheckBox Grid.Column="0"
+                                          IsChecked="{Binding IsSelected}"
+                                          Style="{StaticResource ModernCheckBoxStyle}"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,12,0"/>
+
+                                <!-- Category Icon -->
+                                <Border Grid.Column="1"
+                                        Width="40" Height="40"
+                                        Background="{StaticResource SurfaceLightBrush}"
+                                        CornerRadius="8"
+                                        Margin="0,0,16,0">
+                                    <TextBlock Text="{Binding CategoryIcon}"
+                                               FontFamily="{StaticResource IconFont}"
+                                               FontSize="18"
+                                               Foreground="{StaticResource AccentBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+
+                                <!-- Details -->
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}"
+                                                   Style="{StaticResource BodyStyle}"
+                                                   FontWeight="Medium"/>
+                                        <TextBlock Text="(Admin)"
+                                                   Style="{StaticResource CaptionStyle}"
+                                                   Foreground="{StaticResource WarningBrush}"
+                                                   Margin="8,0,0,0"
+                                                   Visibility="{Binding RequiresAdmin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Description}"
+                                               Style="{StaticResource CaptionStyle}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+
+                                <!-- Size -->
+                                <TextBlock Grid.Column="3"
+                                           Text="{Binding SizeFormatted}"
+                                           Style="{StaticResource BodyStyle}"
+                                           FontWeight="Medium"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Empty State -->
+        <Border Grid.Row="2"
+                Visibility="{Binding NoItemsFound, Converter={StaticResource BoolToVisibilityConverter}}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="&#xE74C;"
+                           FontFamily="{StaticResource IconFont}"
+                           FontSize="64"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Scan for cleanup items"
+                           Style="{StaticResource SubheadingStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,16,0,0"/>
+                <TextBlock Text="Click 'Scan' to find files that can be cleaned up."
+                           Style="{StaticResource CaptionStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Result Card -->
+        <Border Grid.Row="2"
+                Style="{StaticResource CardStyle}"
+                Visibility="{Binding ShowResult, Converter={StaticResource BoolToVisibilityConverter}}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Padding="48,32">
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="&#xE73E;"
+                           FontFamily="{StaticResource IconFont}"
+                           FontSize="64"
+                           Foreground="{StaticResource SuccessBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Cleanup Complete!"
+                           Style="{StaticResource SubheadingStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,16,0,0"/>
+                <TextBlock HorizontalAlignment="Center"
+                           Style="{StaticResource BodyStyle}"
+                           Margin="0,8,0,0">
+                    <Run Text="Freed "/>
+                    <Run Text="{Binding Result.BytesFreedFormatted, Mode=OneWay}" Foreground="{StaticResource SuccessBrush}"/>
+                    <Run Text=" of disk space"/>
+                </TextBlock>
+                <TextBlock Style="{StaticResource CaptionStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,4,0,0">
+                    <Run Text="{Binding Result.FilesDeleted, Mode=OneWay}"/>
+                    <Run Text=" files deleted"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    Margin="0,24,0,0">
+            <Button Content="Scan"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding ScanCommand}"
+                    IsEnabled="{Binding CanScan}"/>
+            <Button Content="Clean Selected"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding CleanCommand}"
+                    IsEnabled="{Binding HasSelectedItems}"
+                    Margin="12,0,0,0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

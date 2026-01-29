@@ -1,0 +1,120 @@
+<Window x:Class="WhatsUpWithMyPC.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:WhatsUpWithMyPC.ViewModels"
+        xmlns:views="clr-namespace:WhatsUpWithMyPC.Views"
+        Title="WhatsUpWithMyPC"
+        Height="700" Width="1000"
+        MinHeight="500" MinWidth="800"
+        WindowStartupLocation="CenterScreen"
+        Style="{StaticResource MainWindowStyle}"
+        StateChanged="Window_StateChanged"
+        Closing="Window_Closing">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Title Bar -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2"
+                Background="{StaticResource SurfaceBrush}"
+                Padding="16,12">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE7F4;"
+                               FontFamily="{StaticResource IconFont}"
+                               FontSize="20"
+                               Foreground="{StaticResource AccentBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+                    <TextBlock Text="WhatsUpWithMyPC"
+                               Style="{StaticResource SubheadingStyle}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Window Controls (minimize to tray button) -->
+                <Button HorizontalAlignment="Right"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Padding="8,4"
+                        Command="{Binding MinimizeToTrayCommand}"
+                        ToolTip="Minimize to System Tray">
+                    <TextBlock Text="&#xE921;"
+                               FontFamily="{StaticResource IconFont}"
+                               FontSize="14"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Navigation Sidebar -->
+        <Border Grid.Row="1" Grid.Column="0"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,1,0">
+            <StackPanel Margin="0,8">
+                <RadioButton Content="Dashboard"
+                             Style="{StaticResource NavButtonStyle}"
+                             IsChecked="{Binding IsDashboardSelected}"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="Dashboard"/>
+                <RadioButton Content="Health Check"
+                             Style="{StaticResource NavButtonStyle}"
+                             IsChecked="{Binding IsHealthCheckSelected}"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="HealthCheck"/>
+                <RadioButton Content="Cleanup"
+                             Style="{StaticResource NavButtonStyle}"
+                             IsChecked="{Binding IsCleanupSelected}"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="Cleanup"/>
+                <RadioButton Content="Quick Fixes"
+                             Style="{StaticResource NavButtonStyle}"
+                             IsChecked="{Binding IsFixesSelected}"
+                             Command="{Binding NavigateCommand}"
+                             CommandParameter="Fixes"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content Area -->
+        <ContentControl Grid.Row="1" Grid.Column="1"
+                        Content="{Binding CurrentView}"
+                        Margin="0"/>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Grid.ColumnSpan="2"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="16,8">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,24,0">
+                        <Run Text="CPU: "/>
+                        <Run Text="{Binding CpuUsage, StringFormat={}{0:F0}%}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,0,24,0">
+                        <Run Text="RAM: "/>
+                        <Run Text="{Binding RamUsage}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource CaptionStyle}">
+                        <Run Text="Disk: "/>
+                        <Run Text="{Binding DiskUsage, StringFormat={}{0:F0}%}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </TextBlock>
+                </StackPanel>
+                <TextBlock HorizontalAlignment="Right"
+                           Style="{StaticResource CaptionStyle}"
+                           Text="{Binding StatusMessage}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
