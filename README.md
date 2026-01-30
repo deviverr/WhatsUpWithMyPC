@@ -1,4 +1,4 @@
-# WhatsUpWithMyPC
+# WUWMP - WhatsUpWithMyPC
 
 A lightweight Windows PC health analyzer, cleaner, and repair utility. Designed to be minimal, fast, and effective.
 
