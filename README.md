@@ -5,6 +5,16 @@ A lightweight Windows PC health analyzer, cleaner, and repair utility. Designed 
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%2F11-blue)
 ![.NET 8](https://img.shields.io/badge/.NET-8.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-green)
+![Version](https://img.shields.io/badge/Version-2.0-orange)
+
+## What's New in v2.0
+
+- **Activity Log Panel**: Real-time logs showing what the app is doing
+- **Performance Optimizer**: Tweak Windows settings for better performance
+- **Startup Manager**: Full control over startup programs with impact analysis
+- **Hardware Diagnostics**: Test disk health, RAM, and CPU stress tests
+- **Enhanced Dashboard**: More stats including display info, process counts
+- **Improved UI**: Better visual feedback and status indicators
 
 ## Features
 
@@ -16,6 +26,8 @@ Real-time system monitoring with live statistics:
 - **Disk**: Drive usage, free space for all drives
 - **Network**: Upload/download speeds, connection status
 - **Battery**: Charge level, charging status (laptops)
+- **Display**: Resolution, refresh rate, DPI scaling
+- **System**: Process count, thread count, handle count
 - **Uptime**: System uptime display
 
 ### Health Check
@@ -40,6 +52,36 @@ Free up disk space by removing:
 
 Preview sizes before cleaning, with selective cleanup options.
 
+### Performance Optimizer (NEW in v2.0)
+Optimize Windows for better performance:
+
+| Category | Options |
+|----------|---------|
+| Visual Effects | Disable animations, transparency, shadows |
+| Power Plan | Balanced, High Performance, Power Saver |
+| Memory | Clear standby list, working sets |
+| Gaming | Disable Xbox DVR, enable Game Mode |
+
+One-click presets:
+- **Maximum Performance**: All optimizations enabled
+- **Balanced**: Sensible defaults
+- **Gaming Mode**: Optimized for gaming
+
+### Startup Manager (NEW in v2.0)
+Full control over startup programs:
+- View all startup items (Registry + Startup folder)
+- Impact rating (High/Medium/Low)
+- Publisher and file path information
+- Enable/Disable toggle for each item
+- Refresh list to see changes
+
+### Hardware Diagnostics (NEW in v2.0)
+Test and diagnose hardware health:
+- **Disk Health**: SMART status check for all drives
+- **Memory Test**: RAM stress test with pattern verification
+- **CPU Stress Test**: Multi-core load test
+- **System Info**: Detailed hardware specifications
+
 ### Quick Fixes
 One-click solutions for common problems:
 
@@ -54,6 +96,13 @@ One-click solutions for common problems:
 | High CPU Usage | Identifies CPU-intensive processes |
 | Network Issues | Resets network stack, flushes DNS |
 
+### Activity Log (NEW in v2.0)
+Collapsible panel showing real-time operation logs:
+- Timestamped entries
+- Color-coded by type (Info, Success, Warning, Error)
+- Clear button to reset log
+- Auto-scroll to latest entries
+
 ### System Tray
 - Minimize to system tray for background monitoring
 - Live stats in tooltip (CPU, RAM, Disk)
@@ -65,14 +114,24 @@ One-click solutions for common problems:
 
 ```
 +-------------------------------------------+
-|  WhatsUpWithMyPC              [_][#][X]  |
+|  WhatsUpWithMyPC v2.0           [_][#][X] |
 +--------+----------------------------------+
-| Dashboard   |                             |
-| Health      |    System Dashboard         |
-| Cleanup     |                             |
-| Fixes       |   CPU: 15%    RAM: 8.2 GB   |
-|             |   GPU: NVIDIA  Disk: 45%    |
+| MONITOR    |                              |
+|  Dashboard |    System Dashboard          |
+| ANALYSIS   |                              |
+|  Health    |   CPU: 15%    RAM: 8.2 GB    |
+|  Cleanup   |   GPU: NVIDIA  Disk: 45%     |
+| OPTIMIZE   |   Display: 1920x1080@144Hz   |
+|  Optimizer |                              |
+|  Startup   |                              |
+| TOOLS      |                              |
+|  Hardware  |                              |
+|  Fixes     |                              |
 +--------+----------------------------------+
+| > Activity Log                    [Clear] |
+| [12:34] i Scanning system...              |
+| [12:35] * Found 234 MB temp files         |
++-------------------------------------------+
 | CPU: 15%  RAM: 8.2/16GB  Disk: 45%       |
 +-------------------------------------------+
 ```
@@ -108,13 +167,18 @@ dotnet publish src/WhatsUpWithMyPC.csproj -c Release
 2. **Dashboard**: View real-time system statistics
 3. **Health Check**: Click "Run Full Scan" to check for issues
 4. **Cleanup**: Scan for and remove unnecessary files
-5. **Quick Fixes**: One-click solutions for common problems
-6. **Minimize to Tray**: Click the tray icon or close button to minimize
+5. **Optimizer**: Tweak performance settings
+6. **Startup**: Manage startup programs
+7. **Hardware**: Run diagnostic tests
+8. **Quick Fixes**: One-click solutions for common problems
+9. **Activity Log**: Click to expand/collapse the log panel
+10. **Minimize to Tray**: Click the tray icon or close button to minimize
 
 ### Tips
 - Run as Administrator for full functionality (some fixes require elevated privileges)
 - The app continues monitoring in the system tray when minimized
 - Right-click the tray icon for quick access to features
+- Check the Activity Log to see what operations are running
 
 ## Performance
 
@@ -158,7 +222,16 @@ WhatsUpWithMyPC/
 │   ├── Models/           # Data models
 │   ├── ViewModels/       # MVVM view models
 │   ├── Views/            # WPF user controls
+│   │   ├── DashboardView.xaml
+│   │   ├── HealthCheckView.xaml
+│   │   ├── CleanupView.xaml
+│   │   ├── OptimizerView.xaml      # NEW
+│   │   ├── StartupManagerView.xaml # NEW
+│   │   ├── DiagnosticsView.xaml    # NEW
+│   │   └── FixesView.xaml
 │   ├── Services/         # Business logic
+│   │   ├── LogService.cs           # NEW
+│   │   └── ...
 │   ├── Helpers/          # Utility classes
 │   ├── Themes/           # UI styles
 │   └── Assets/           # Icons, resources
@@ -187,6 +260,25 @@ Contributions are welcome! Please:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Changelog
+
+### v2.0.0
+- Added Activity Log panel with real-time operation logging
+- Added Performance Optimizer with visual effects, power plans, and gaming optimizations
+- Added Startup Manager with impact ratings and enable/disable controls
+- Added Hardware Diagnostics with SMART, RAM test, and CPU stress test
+- Enhanced Dashboard with display info and process counts
+- Improved navigation with categorized sections
+- Added logging to all operations for better transparency
+
+### v1.0.0
+- Initial release
+- Dashboard with real-time monitoring
+- Health Check diagnostics
+- Cleanup utility
+- Quick Fixes for common problems
+- System tray integration
 
 ## Acknowledgments
 
